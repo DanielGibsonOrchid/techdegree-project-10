@@ -3,9 +3,7 @@ import { Link } from 'react-router-dom';
 
 /* Header menu */
 const Header = () => {
-  console.log("1", localStorage)
-  console.log("2", JSON.parse(localStorage.getItem('IsLoggedIn')))
-  console.log("3", localStorage.getItem('IsLoggedIn'))
+
   /* Check if the user is logged in - if Yes then return a different menu */
   if(JSON.parse(localStorage.getItem('IsLoggedIn'))){
 
