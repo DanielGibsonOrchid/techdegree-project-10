@@ -5,7 +5,17 @@ import { Redirect } from "react-router-dom";
 class UserSignOut extends Component {
 
   componentDidMount() {
-    window.localStorage.clear();
+    window.localStorage.removeItem('FirstName')
+    window.localStorage.removeItem('LastName')
+    window.localStorage.removeItem('EmailAddress')
+    window.localStorage.removeItem('Password')
+    window.localStorage.removeItem('UserId')
+    window.localStorage.removeItem('IsLoggedIn')
+    window.localStorage.removeItem('id')
+    window.localStorage.removeItem('name')
+    window.localStorage.removeItem('password')
+    window.localStorage.removeItem('username')
+    window.location.assign('/signin')
   }
 
   render() {
