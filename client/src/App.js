@@ -53,12 +53,6 @@ class App extends Component {
       /* Clear validation errors from sign-in form */
       this.setState({ validationError: '' })
     })
-    
-    /*
-      * Slight issue - when signing in, console gives an error:
-      * err.response is undefined
-      * Not sure why this happens but doesn't appear to effect the app
-    */
 
     /* Catch errors - Check if server error = push to /error page */
     .catch(err => {
