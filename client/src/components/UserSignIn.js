@@ -1,12 +1,22 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import UserContext from './UserContext'
 
 class UserSignIn extends Component {
 
-  state = {
-    emailAddress: '',
-    password: '',
+  constructor(props) {
+    super(props);
+    this.state = {
+      emailAddress: '',
+      password: '',
+    };
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+  // Handle form submit
+  handleSubmit = e => {
+    const { emailAddress, password } = this.state;
+    e.preventDefault();
+    let loginDetails = {"emailAddress": emailAddress, "password": password}
+    this.props.signIn(loginDetails);
   };
 
   // Handle changes to the form inputs
@@ -16,26 +26,22 @@ class UserSignIn extends Component {
     });
   }
 
-
   render() {
     return (
-      <UserContext.Consumer>
-      {({ signIn, authenticationErrors }) => (
         <div className="bounds">
           <div className="grid-33 centered signin">
             <h1>Sign In</h1>
             <div>
-              {authenticationErrors ? (
-                <div>
-                  <h2 className="validation--errors--labels">Authentication error</h2>
-                  <div className="validation-errors">
-                    <ul>
-                      <li>{authenticationErrors}</li>
-                    </ul>
-                  </div>
+              { this.props.validationError &&  (
+              <div>
+                <h2 className="validation--errors--label">Error!</h2>
+                <br />
+                <div className="validation-errors">
+                 <p>{this.props.validationError}</p>
                 </div>
-              ):''}
-              <form onSubmit={e => signIn(e, this.state.emailAddress, this.state.password)}>
+              </div>
+              )}
+              <form onSubmit={this.handleSubmit}>
                 <div>
                   <input 
                     id="emailAddress" 
@@ -43,7 +49,8 @@ class UserSignIn extends Component {
                     type="email"
                     className=""
                     placeholder="Email Address"
-                    onChange={this.handleChange}
+                    value={this.state.emailAddress}
+                    onChange={e => this.handleChange(e)}
                   />
                 </div>
                 <div>
@@ -53,7 +60,8 @@ class UserSignIn extends Component {
                     type="password"
                     className=""
                     placeholder="Password"
-                    onChange={this.handleChange}
+                    value={this.state.password}
+                    onChange={e => this.handleChange(e)}
                   />
                 </div>
                 <div className="grid-100 pad-bottom">
@@ -69,9 +77,7 @@ class UserSignIn extends Component {
             </div>
           </div>
         </div>
-      )}
-      </UserContext.Consumer>
-    )
+      )
   }
 }
 

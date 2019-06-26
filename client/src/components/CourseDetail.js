@@ -2,67 +2,124 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
-// import { useSpring, animated } from 'react-spring';
 import { Spring } from 'react-spring/renderprops';
 
 class CourseDetail extends Component {
-  state = {
-    course: {},
-    id: this.props.match.params.id,
-    fullName: '',
-  };
+  
+  constructor(props) {
+    super(props);
+    this.state = {
+      course: [],
+      user: [],
+    }
+    this.handleDelete = this.handleDelete.bind(this);
+  }
+
+  // state = {
+  //   course: {},
+  //   id: this.props.match.params.id,
+  //   fullName: '',
+  // };
 
   componentDidMount() {
-    const { id } = this.state;
-    this.getCourse(id);
-  }
+    const { match: { params } } = this.props;
+    
+  
   
   /***
   * Fetch the list of courses from the API using axios
   ***/
-  getCourse = (id) => {
-    axios.get(`http://localhost:5000/api/courses/${id}`)
+    axios
+      .get(`http://localhost:5000/api/courses/${params.id}`)
       .then(res => {
         this.setState({
           course: res.data,
-          fullName: `${res.data.User.firstName} ${res.data.User.lastName}`,
+          user: res.data.User,
         });
       })
       //Catch and handle errors
       .catch(err => {
-        if (err.response.status === 400) {
-          this.props.history.push('/notfound');
-        } else {
+        if (err.response.status === 500) {
           console.error('Error fetching and parsing data', err);
           this.props.history.push('/error');
+        } else {
+          this.props.history.push('/notfound');
+        }
+      });
+  }
+
+  handleDelete() {
+    const { match: { params }, history } = this.props;
+
+    axios
+      .delete(`http://localhost:5000/api/courses/${params.id}`, {
+        auth: {
+          username: window.localStorage.getItem("Email"),
+          password: window.localStorage.getItem("Password"),
+        }
+      })
+      .then(() => {
+        history.push('/');
+      })
+      .catch(err => {
+        if (err.response.status === 500) {
+          console.error('Error fetching and parsing data', err);
+          this.props.history.push('/error');
+        } else {
+          this.props.history.push('/notfound');
         }
       });
   }
 
   render () {
 
-    const { id, course, fullName } = this.state;
-    // const props = useSpring({opacity: 1, from: {opacity: 0}})
+    const { course, user } = this.state;
+    const isLoggedIn = localStorage.getItem("IsLoggedIn");
+    const UserId = JSON.parse(localStorage.getItem("UserId"));
+
 
     return (
-      // <animated.dv style={props}>
       <Spring from={{ opacity: 0 }} to={{ opacity: 1}}>
         {props => (
           <div style={props}>
             <div className="actions--bar">
               <div className="bounds">
                 <div className="grid-100">
-                  <span>
-                    <Link className="button" to={`/courses/${id}/update`}>
-                      Update Course
+
+                  {(isLoggedIn && user.id === UserId) ? (
+                      <span>
+                        <Link className="button" to={`/courses/${course.id}/update`}>
+                          Update Course
+                        </Link>
+                        <button className="button" to="#" onClick={this.handleDelete}>
+                          Delete Course
+                        </button>
+                      </span>
+                  ) : 
+                  (user.id !== UserId) ? (
+                    <span>
+                    <Link className="button" to={'/signin'}>
+                      This account doesn't have access to Update Course
                     </Link>
                     <button className="button" to="/">
-                      Delete Course
+                      This account doesn't have access to Delete Course
                     </button>
                   </span>
+                  ) : 
+                  <span>
+                    <Link className="button" to={'/signin'}>
+                      Sign-in to Update Course
+                    </Link>
+                    <button className="button" to="/">
+                      Sign-in to Delete Course
+                    </button>
+                  </span>
+                  }
+
                   <Link className="button button-secondary" to="/">
                     Return to List
                   </Link>
+
                 </div>
               </div>
             </div>
@@ -71,7 +128,7 @@ class CourseDetail extends Component {
                 <div className="course--header">
                   <h4 className="course--label">Course</h4>
                   <h3 className="course--title">{course.title}</h3>
-                  <p>By {fullName}</p>
+                  <p>By {user.firstName} {user.lastName}</p>
                 </div>
                 <div className="course-description">
                   <ReactMarkdown source={course.description} />

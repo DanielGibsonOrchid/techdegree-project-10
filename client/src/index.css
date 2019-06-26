@@ -239,21 +239,18 @@ body {
   margin: 0 10px;
 }
 /* line 34, ../sass/global.sass */
-.header .signup, .header .signin {
+.header nav {
   float: right;
   margin-top: 3px;
+  padding-right: 10px;
 }
 /* line 37, ../sass/global.sass */
-.header .signup, .header .signin {
+.header nav a {
   color: rgba(255, 255, 255, 0.5);
   margin-left: 20px;
 }
 /* line 40, ../sass/global.sass */
 .header nav a:hover {
-  color: #fff;
-}
-
-.header .signup:hover, .header .signin:hover {
   color: #fff;
 }
 

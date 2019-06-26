@@ -1,107 +1,99 @@
 import React, { Component } from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import axios from 'axios';
-import UserContext from './components/UserContext';
 
 import Header from './components/Header';
 import Courses from './components/Courses';
 import CourseDetail from './components/CourseDetail';
 import UserSignIn from './components/UserSignIn';
 import UserSignUp from './components/UserSignUp';
+import UserSignOut from './components/UserSignOut';
 import CreateCourse from './components/CreateCourse';
 import UpdateCourse from './components/UpdateCourse';
 import NotFound from './components/NotFound';
-import Error from './components/Error';
-import Forbidden from './components/Fobidden';
+import UnhandledError from './components/UnhandledError';
+import Forbidden from './components/Forbidden';
+import PrivateRoute from './components/PrivateRoute';
 
 class App extends Component {
 
-  state = {
-    authenticationErrors: '',
+  constructor() {
+    super();
+    this.state = {
+      validationError: '',
+    };
+    this.signIn = this.signIn.bind(this);
   }
 
-  handleSignIn(e, emailAddress, password) {
-    if(e) {
-      e.preventDefault();
-    }
-    axios.get('http://localhost:5000/api/users',
-      {
-        auth: {
-          username: emailAddress,
-          password: password
-        }
-      })
-      .then(res => {
-        if (res.status === 200) {
-          const user = res.data;
-          const fullName = user.firstName + ' ' + user.lastName;
+  signIn(loginDetails, props) {
+    axios.get("http://localhost:5000/api/users", {
+      auth: {
+        username: loginDetails.emailAddress,
+        password: loginDetails.password
+      }
+    }).then(res => { 
+      window.localStorage.setItem('FirstName',res.data.firstName)
+      window.localStorage.setItem('LastName', res.data.lastName)
+      window.localStorage.setItem('Email',loginDetails.emailAddress)
+      window.localStorage.setItem('Password',loginDetails.password)
+      window.localStorage.setItem('UserId', JSON.stringify(res.data.id))
+      window.localStorage.setItem('IsLoggedIn', JSON.stringify(true))
+      // window.location.assign('/')
+      this.setState({ validationError: '' })
 
-          // Use Local Storage to add the user data
-          localStorage.setItem('id', user.id);
-          localStorage.setItem('username', emailAddress);
-          localStorage.setItem('password', password);
-          localStorage.setItem('fullName', fullName);
-
-          // Clear form errors
-          this.setState({
-            authenticationErrors: ''
-          });
+      /*
+      *
+      * Error #1 - props.history is not working. Seems like there is no props being passed through - Not sure how to fix this
+      * 
+      */
+      const { history, location } = props;
+      const path = location.state ? location.prevLocation : '/';
+      history.push(path);
 
 
-          // Successful login redirects to homepage
-          this.props.history.push('/');
-
-          /**** ERROR COMING FROM THIS LINE*****/
-
-        }
-      })
-      .catch( err => {
-        console.log('error signing in', err);
-        // if(err.response.status === 400) {
-        //   this.setState({
-        //   authenticationErrors: "Sorry, your email address or password is wrong - Please try again."
-        //   });
-        // } else if(error.response.status === 500) {
-        //   this.props.history.push('/error');
-        // }
-      });
-  }
-
-  handleSignOut() {
-    localStorage.clear();
-    this.setState({
-      authenticationErrors: ''
+    })
+    /*
+      *
+      * Error #2 - err.response is undefined (console error) - Not sure how to fix this
+      * 
+      */
+    .catch(err => {
+      if (err.response.status === 500) {
+        console.error('Error fetching and parsing data', err);
+        this.props.history.push('/error');
+      } else {
+        this.setState ({validationError: err.response.data.message })
+      }
     });
-    this.props.history.push('/');
   }
 
   render() {
     return (
-      <UserContext.Provider
-        value={{
-          signIn: this.handleSignIn.bind(this),
-          signOut: this.handleSignOut.bind(this),
-          authenticationErrors: this.state.authenticationErrors
-        }}>
-        <BrowserRouter>
-          <div>
-            <Header />
-            <Switch>
-              <Route exact path="/" component={Courses} />
-              <Route exact path="/courses/:id" component={CourseDetail} />
-              <Route path="/signin" render={() => <UserSignIn />} />
-              <Route exact path="/signup" component={UserSignUp} />
-              <Route exact path="/courses/create" component={CreateCourse} />
-              <Route exact path="/courses/:id/update" component={UpdateCourse} />
-              <Route exact path="/fobidden" component={Forbidden} />
-              <Route exact path="/notfound" component={NotFound} />
-              <Route exact path="/error" component={Error} />
-              <Route render={() => <NotFound />} />
-            </Switch>
-          </div>
-        </BrowserRouter>
-      </UserContext.Provider>
-    )
+      <BrowserRouter>
+        <div className="root">
+          <Header />
+          <Switch>
+            <Route exact path="/" component={Courses} />
+            <PrivateRoute path="/courses/create" component={CreateCourse} />
+            <PrivateRoute path="/courses/:id/update" component={UpdateCourse} />
+            <Route exact path="/courses/:id" component={CourseDetail} />
+
+            <Route exact path="/signin" component={() => <UserSignIn 
+              signIn={this.signIn} 
+              validationError={this.state.validationError}
+              isValidated={this.state.isValidated}
+            /> } />
+            <Route exact path="/signup" component={UserSignUp} />
+            <Route exact path="/signout" component={UserSignOut} />
+
+            <Route exact path="/forbidden" component={Forbidden} />
+            <Route exact path="/notfound" component={NotFound} />
+            <Route exact path="/error" component={UnhandledError} />
+            <Route component={NotFound} />
+          </Switch>
+        </div>
+      </BrowserRouter>    
+    );
   }
 }
 

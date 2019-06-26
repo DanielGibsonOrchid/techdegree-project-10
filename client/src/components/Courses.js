@@ -24,19 +24,18 @@ class Courses extends Component {
       })
       //Catch and handle errors
       .catch(err => {
-        if (err.response.status === 400) {
-          this.props.history.push('/notfound');
-        } else {
+        if (err.response.status === 500) {
           console.error('Error fetching and parsing data', err);
           this.props.history.push('/error');
+        } else {
+          this.props.history.push('/notfound');
         }
       });
   }
 
   render() {
-    
-    const { courses } = this.state;
 
+    const { courses } = this.state;
     return (
       <div className="bounds">
 

@@ -1,33 +1,122 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 class UserSignUp extends Component {
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      firstName: '',
+      lastName: '',
+      emailAddress: '',
+      password: '',
+      confirmPassword: '',
+      validationErrors: [],
+      emailInUseError: '',
+      passwordsNotMatching: false,
+    };
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  handleSubmit = (e) => {
+    const { password, confirmPassword } = this.state 
+    e.preventDefault();
+    if(password === confirmPassword) {
+      this.setState ({ passwordsNotMatching: false })
+      this.handleSignUp();
+    } else {
+      this.setState ({ passwordsNotMatching: true })
+    }
+  }
+
+  handleSignUp = () => {
+    const { firstName, lastName, emailAddress, password, confirmPassword } = this.state;
+    axios({
+      method: 'post',
+      url: 'http://localhost:5000/api/users/',
+      data: {
+        firstName,
+        lastName,
+        emailAddress,
+        password,
+        confirmPassword,
+      }
+    })
+    .then(() => {
+      const { history } = this.props;
+      history.push('/signin');
+      // if (res.status === 201) {
+      //   alert("Account Created!");
+      //   this.props.history.push("/signin");
+      // } else {
+      //   throw new Error();
+      // }
+    })
+    .catch(err => {
+      if (err.response.status === 500) {
+        console.error('Error fetching and parsing data', err);
+        this.props.history.push('/error');
+      } else if (err.response.data.message) {
+        this.setState ({ emailInUseError: err.response.data.message })
+      } else {
+        this.setState({ validationErrors: err.response.data.errors })
+      }
+    });
+  }
+
+  // Handle changes to the form inputs
+  handleChange = (e) => {
+    this.setState({
+      [ e.target.name ] : e.target.value 
+    });
+  }
+
   render() {
+
+    const { validationErrors, emailInUseError, passwordsNotMatching } = this.state
+
     return (
       <div className="bounds">
         <div className="grid-33 centered signin">
           <h1>Sign Up</h1>
           <div>
-            <form>
+            <div className="validation-errors">
+              <ul>
+                { validationErrors ? (
+                  validationErrors.map((err) =>
+                    <li key={err.toString()}>{err}</li>
+                  )
+                ) :''}
+                { passwordsNotMatching ? (
+                  <li>Passwords are not matching</li>
+                ) :''}
+                {emailInUseError ? (
+                  <li>{emailInUseError}</li>
+                ) : ''}
+              </ul>
+            </div>
+            <form onSubmit={this.handleSubmit}>
               <div>
                 <input 
-                  id="firstname" 
-                  name="firstname" 
+                  id="firstName" 
+                  name="firstName" 
                   type="text"
                   className=""
                   placeholder="First Name"
-                  onChange={this.handleInput}
+                  value={this.state.firstName}
+                  onChange={e => this.handleChange(e)}
                 />
               </div>
               <div>
                 <input 
-                  id="lastname" 
-                  name="lastname" 
+                  id="lastName" 
+                  name="lastName" 
                   type="text"
                   className=""
                   placeholder="Last Name"
-                  onChange={this.handleInput}
+                  value={this.state.lastName}
+                  onChange={e => this.handleChange(e)}
                 />
               </div>
               <div>
@@ -37,7 +126,8 @@ class UserSignUp extends Component {
                   type="email"
                   className=""
                   placeholder="Email Address"
-                  onChange={this.handleInput}
+                  value={this.state.emailAddress}
+                  onChange={e => this.handleChange(e)}
                 />
               </div>
               <div>
@@ -47,7 +137,8 @@ class UserSignUp extends Component {
                   type="password"
                   className=""
                   placeholder="Password"
-                  onChange={this.handleInput}
+                  value={this.state.password}
+                  onChange={e => this.handleChange(e)}
                 />
               </div>
               <div>
@@ -57,7 +148,8 @@ class UserSignUp extends Component {
                   type="password"
                   className=""
                   placeholder="Confirm Password"
-                  onChange={this.handleInput}
+                  value={this.state.confirmPassword}
+                  onChange={e => this.handleChange(e)}
                 />
               </div>
               <div className="grid-100 pad-bottom">

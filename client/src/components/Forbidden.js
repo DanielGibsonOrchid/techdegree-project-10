@@ -1,15 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-//500 error page
-const Error = () => {
+//Authentication error page
+const Forbidden = () => {
   return (
     <div className="bounds">
-      <h1>Error</h1>
-      <p>Sorry! We just encountered an unexpected error.</p>
+      <h1>Forbidden</h1>
+      <p>Sorry, you don't have user access to this page</p>
       <Link className="button button-secondary" to="/">Back Home</Link>
     </div>
   )
 }
 
-export default Error;
+export default Forbidden;
