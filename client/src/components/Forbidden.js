@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-//Authentication error page
+/* Authentication error page */
 const Forbidden = () => {
   return (
     <div className="bounds">

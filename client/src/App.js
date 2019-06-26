@@ -1,7 +1,10 @@
+// App.js is a container for all other components and manages routing
+
 import React, { Component } from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import axios from 'axios';
 
+// Import components
 import Header from './components/Header';
 import Courses from './components/Courses';
 import CourseDetail from './components/CourseDetail';
@@ -17,28 +20,37 @@ import PrivateRoute from './components/PrivateRoute';
 
 class App extends Component {
 
+  /* Keeps global state in App component - instead of React Context API
+  * After user signs-in this update props and make them available to pass down to all other components */
+
   constructor() {
     super();
     this.state = {
+      //Hold state for validation on sign-in
       validationError: '',
     };
-    this.signIn = this.signIn.bind(this);
+    this.handleSignIn = this.handleSignIn.bind(this);
   }
 
-  signIn(loginDetails, props) {
+  /* Called from UserSignIn component - handles the sign-in process */
+  handleSignIn(username, password, props) {
     axios.get("http://localhost:5000/api/users", {
       auth: {
-        username: loginDetails.emailAddress,
-        password: loginDetails.password
+        username: username,
+        password: password,
       }
-    }).then(res => { 
+    })
+    /* If authentication is successful - Store user data in the browser */
+    .then(res => { 
       window.localStorage.setItem('FirstName',res.data.firstName)
       window.localStorage.setItem('LastName', res.data.lastName)
-      window.localStorage.setItem('Email',loginDetails.emailAddress)
-      window.localStorage.setItem('Password',loginDetails.password)
+      window.localStorage.setItem('EmailAddress', username)
+      window.localStorage.setItem('Password', password)
       window.localStorage.setItem('UserId', JSON.stringify(res.data.id))
       window.localStorage.setItem('IsLoggedIn', JSON.stringify(true))
       // window.location.assign('/')
+
+      /* Clear validation errors from sign-in form */
       this.setState({ validationError: '' })
 
       /*
@@ -57,11 +69,13 @@ class App extends Component {
       * Error #2 - err.response is undefined (console error) - Not sure how to fix this
       * 
       */
+    /* Catch errors - Check if server error = push to /error page */
     .catch(err => {
       if (err.response.status === 500) {
         console.error('Error fetching and parsing data', err);
         this.props.history.push('/error');
       } else {
+        /* If not a server error then it must be a validation error */
         this.setState ({validationError: err.response.data.message })
       }
     });
@@ -78,10 +92,10 @@ class App extends Component {
             <PrivateRoute path="/courses/:id/update" component={UpdateCourse} />
             <Route exact path="/courses/:id" component={CourseDetail} />
 
+            {/* Pass handleSignIn and validation errors through to UserSignIn component*/}
             <Route exact path="/signin" component={() => <UserSignIn 
-              signIn={this.signIn} 
+              handleSignIn={this.handleSignIn} 
               validationError={this.state.validationError}
-              isValidated={this.state.isValidated}
             /> } />
             <Route exact path="/signup" component={UserSignUp} />
             <Route exact path="/signout" component={UserSignOut} />
@@ -89,6 +103,8 @@ class App extends Component {
             <Route exact path="/forbidden" component={Forbidden} />
             <Route exact path="/notfound" component={NotFound} />
             <Route exact path="/error" component={UnhandledError} />
+
+            {/* If any route doesn't match the above then route to NotFound component */}
             <Route component={NotFound} />
           </Switch>
         </div>

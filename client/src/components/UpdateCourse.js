@@ -16,30 +16,33 @@ class UpdateCourse extends Component {
       validationErrors: '',
     };
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleCancel = this.handleCancel.bind(this);
   }
   
+  /* Submit button sends PUT request to API */
   handleSubmit = (e) => {
-    const {match: { params }} = this.props;
+
+    const id =  this.props.match.params.id;
     e.preventDefault();
+
     axios ({
       method: 'put',
-      url: `http://localhost:5000/api/courses/${params.id}`,
+      url: `http://localhost:5000/api/courses/${id}`,
       auth: {
-        username: window.localStorage.getItem('Email'),
+        username: window.localStorage.getItem('EmailAddress'),
         password: window.localStorage.getItem('Password')
       },
       data: {
-        id: params.id,
+        id: id,
         title: this.state.title,
         description: this.state.description,
         estimatedTime: this.state.estimatedTime,
         materialsNeeded: this.state.materialsNeeded,
       }
     })
-    .then(res => {
-      this.props.history.push(`/courses/${params.id}`);
+    .then( () => {
+      this.props.history.push(`/courses/${id}`);
     })
+    /* Catch errors - Check if server error = push to /error page */
     .catch(err => {
       if (err.response.status === 500) {
         console.error('Error fetching and parsing data', err);
@@ -50,37 +53,37 @@ class UpdateCourse extends Component {
     });
   }
 
-  // Handle changes to the form inputs
+  /* Handle changes to the form inputs */
   handleChange = e => {
     this.setState({
       [ e.target.name ] : e.target.value 
     });
   }
 
-  handleCancel = (e) => {
-    let { history } = this.props;
-    let { course } = this.state;
-    e.preventDefault();
-    history.push(`/courses/${course.id}`);
-  }
-
+  /* When page first loads - Do this: */
   componentDidMount() {
-    const { match: { params }} = this.props;
-    axios.get(`http://localhost:5000/api/courses/${params.id}`)
+
+    const id =  this.props.match.params.id;
+
+    axios.get(`http://localhost:5000/api/courses/${id}`)
       .then(res => {
-        if(res.data.userId === JSON.parse(localStorage.getItem('UserId'))) {
+        const course = res.data;
+
+        /* Check if this user is allowed edit this course (Are they the author of the course?) */
+        if(course.userId === JSON.parse(localStorage.getItem('UserId'))) {
           this.setState({
-            user: res.data.User,
-            title: res.data.title,
-            description: res.data.description,
-            estimatedTime: res.data.estimatedTime,
-            materialsNeeded: res.data.materialsNeeded,
+            user: course.User,
+            title: course.title,
+            description: course.description,
+            estimatedTime: course.estimatedTime,
+            materialsNeeded: course.materialsNeeded,
           });
         } 
         else {
           this.props.history.push('/forbidden');
         }
       })
+      /* Catch errors - Check if server error = push to /error page */
       .catch(err => {
         if (err.response.status === 500) {
           console.error('Error fetching and parsing data', err);
@@ -99,6 +102,7 @@ class UpdateCourse extends Component {
       <div className="bounds course--detail">
         <h1>Update Course</h1>
         <div>
+          {/* Check if there are any validation errors */}
           {validationErrors ? (
             <div>
               <h2 className="validation--errors--labels">Validation errors</h2>

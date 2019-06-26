@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-//500 error page
+/* 500 error page */
 const unhandledError = () => {
   return (
     <div className="bounds">

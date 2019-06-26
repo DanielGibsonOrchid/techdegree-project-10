@@ -2,7 +2,10 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
+
+/* npm plugin to apply animation to rendered content - Slowly appears */
 import { Spring } from 'react-spring/renderprops';
+
 
 class CourseDetail extends Component {
   
@@ -15,29 +18,21 @@ class CourseDetail extends Component {
     this.handleDelete = this.handleDelete.bind(this);
   }
 
-  // state = {
-  //   course: {},
-  //   id: this.props.match.params.id,
-  //   fullName: '',
-  // };
-
+  /* When page first loads - Do this: */
   componentDidMount() {
-    const { match: { params } } = this.props;
-    
-  
-  
-  /***
-  * Fetch the list of courses from the API using axios
-  ***/
+    const id = this.props.match.params.id    
+
+    /* Fetch the requested course from the API using axios */
     axios
-      .get(`http://localhost:5000/api/courses/${params.id}`)
+      .get(`http://localhost:5000/api/courses/${id}`)
       .then(res => {
+        /* If successful then save course and user data to state */
         this.setState({
           course: res.data,
           user: res.data.User,
         });
       })
-      //Catch and handle errors
+      /* Catch errors - Check if server error = push to /error page */
       .catch(err => {
         if (err.response.status === 500) {
           console.error('Error fetching and parsing data', err);
@@ -48,19 +43,22 @@ class CourseDetail extends Component {
       });
   }
 
+  /* Handles request to delete course */
   handleDelete() {
     const { match: { params }, history } = this.props;
 
     axios
       .delete(`http://localhost:5000/api/courses/${params.id}`, {
         auth: {
-          username: window.localStorage.getItem("Email"),
+          username: window.localStorage.getItem("EmailAddress"),
           password: window.localStorage.getItem("Password"),
         }
       })
+      /* If successful then redirect back to courses page */
       .then(() => {
         history.push('/');
       })
+      /* Catch errors - Check if server error = push to /error page */
       .catch(err => {
         if (err.response.status === 500) {
           console.error('Error fetching and parsing data', err);
@@ -86,6 +84,7 @@ class CourseDetail extends Component {
               <div className="bounds">
                 <div className="grid-100">
 
+                  {/* Check if the user has access to delete this course */}
                   {(isLoggedIn && user.id === UserId) ? (
                       <span>
                         <Link className="button" to={`/courses/${course.id}/update`}>
@@ -96,23 +95,16 @@ class CourseDetail extends Component {
                         </button>
                       </span>
                   ) : 
-                  (user.id !== UserId) ? (
-                    <span>
-                    <Link className="button" to={'/signin'}>
-                      This account doesn't have access to Update Course
-                    </Link>
-                    <button className="button" to="/">
-                      This account doesn't have access to Delete Course
-                    </button>
-                  </span>
+                  (isLoggedIn && user.id !== UserId) ? (
+                    ''
                   ) : 
                   <span>
-                    <Link className="button" to={'/signin'}>
+                    <Link className="button" to='/signin'>
                       Sign-in to Update Course
                     </Link>
-                    <button className="button" to="/">
+                    <Link className="button" to='/signin'>
                       Sign-in to Delete Course
-                    </button>
+                    </Link>
                   </span>
                   }
 
@@ -154,7 +146,6 @@ class CourseDetail extends Component {
           </div>
         )}
       </Spring>
-      // </animated.dv>
     )
   }
 

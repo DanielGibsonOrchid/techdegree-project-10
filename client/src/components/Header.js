@@ -1,8 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom'; 
 
+/* Header menu */
 const Header = () => {
+
+  /* Check if the user is logged in - if Yes then return a different menu */
   if(JSON.parse(localStorage.getItem('IsLoggedIn'))){
+
     return (
       <div className="header">
         <div className="bounds">
@@ -16,7 +20,9 @@ const Header = () => {
         </div>
       </div>
     );
+
   } else {
+
     return (
       <div className="header">
         <div className="bounds">
@@ -29,7 +35,7 @@ const Header = () => {
           </nav>
         </div>
       </div>
-    )
+    );
   }
 };
 

@@ -4,25 +4,26 @@ import { Link } from 'react-router-dom';
 
 
 class Courses extends Component {
-  state = {
-    courses: [],
-  };
 
-  componentDidMount() {
-    this.getCourses();
+  constructor(props) {
+    super(props);
+    this.state = {
+      courses: [],
+    }
   }
 
-  /***
-  * Fetch the list of courses from the API using axios
-  ***/
-  getCourses = () => {
-    axios.get('http://localhost:5000/api/courses/')
+  /* When page first loads - Do this: */
+  componentDidMount() {
+
+    /* Fetch the list of courses from the API using axios */    
+    axios
+      .get('http://localhost:5000/api/courses/')
       .then(res => {
         this.setState({
           courses: res.data
         });
       })
-      //Catch and handle errors
+      /* Catch errors - Check if server error = push to /error page */
       .catch(err => {
         if (err.response.status === 500) {
           console.error('Error fetching and parsing data', err);
@@ -36,6 +37,7 @@ class Courses extends Component {
   render() {
 
     const { courses } = this.state;
+
     return (
       <div className="bounds">
 
@@ -60,9 +62,8 @@ class Courses extends Component {
           </Link>
         </div>
       </div>
-    )
+    );
   }
-
 }
 
 export default Courses;

@@ -16,13 +16,14 @@ class CreateCourse extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  // Handle changes to the form inputs
+  /* Handle changes to the form inputs */
   handleChange = e => {
     this.setState({
       [ e.target.name ] : e.target.value 
     });
   }
 
+  /* Submit button calls the API POST method */
   handleSubmit = (e) => {
     e.preventDefault();
 
@@ -30,7 +31,7 @@ class CreateCourse extends Component {
       method: 'post',
       url: 'http://localhost:5000/api/courses',
       auth: {
-        username: window.localStorage.getItem("Email"),
+        username: window.localStorage.getItem("EmailAddress"),
         password: window.localStorage.getItem("Password"),
       },
       data: {
@@ -43,6 +44,7 @@ class CreateCourse extends Component {
     .then( () => {
       this.props.history.push('/');
     })
+    /* Catch errors - Check if server error = push to /error page */
     .catch(err => {
       if (err.response.status === 500) {
         console.error('Error fetching and parsing data', err);
@@ -54,12 +56,15 @@ class CreateCourse extends Component {
   }
 
   render() {
+
     const validationErrors = this.state.validationErrors;
+
     return (
       <div className="bounds course--detail">
         <h1>Create Course</h1>
         <div>
           <div>
+          {/* If validation errors on the form then display them */}
           {validationErrors ? (
             <div>
               <h2 className="validation--errors--labels">Validation errors</h2>
@@ -85,7 +90,7 @@ class CreateCourse extends Component {
                     onChange={e => this.handleChange(e)}
                   />
                 </div>
-                <p>By {localStorage.FirstName}</p>
+                <p>By {localStorage.FirstName} {localStorage.LastName}</p>
               </div>
               <div className="course--description">
                 <div>

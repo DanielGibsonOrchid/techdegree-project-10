@@ -11,15 +11,16 @@ class UserSignIn extends Component {
     };
     this.handleSubmit = this.handleSubmit.bind(this);
   }
-  // Handle form submit
+  /* Submit button calls 'handleSignIn' function in app.js */
   handleSubmit = e => {
+
     const { emailAddress, password } = this.state;
     e.preventDefault();
-    let loginDetails = {"emailAddress": emailAddress, "password": password}
-    this.props.signIn(loginDetails);
+
+    this.props.handleSignIn(emailAddress, password);
   };
 
-  // Handle changes to the form inputs
+  /* Handle changes to the form inputs */
   handleChange = e => {
     this.setState({
       [ e.target.name ] : e.target.value 
@@ -32,6 +33,7 @@ class UserSignIn extends Component {
           <div className="grid-33 centered signin">
             <h1>Sign In</h1>
             <div>
+              {/* Check if there are any validation errors - props info comes from app.js */}
               { this.props.validationError &&  (
               <div>
                 <h2 className="validation--errors--label">Error!</h2>

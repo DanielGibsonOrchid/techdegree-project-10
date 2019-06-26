@@ -19,6 +19,8 @@ class UserSignUp extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
+  /* Submit button checks if password and confirm password fields match
+  * If true then run 'handleSignUp' function */
   handleSubmit = (e) => {
     const { password, confirmPassword } = this.state 
     e.preventDefault();
@@ -30,8 +32,11 @@ class UserSignUp extends Component {
     }
   }
 
+  /* calls API POST method to create a new user */
   handleSignUp = () => {
+
     const { firstName, lastName, emailAddress, password, confirmPassword } = this.state;
+
     axios({
       method: 'post',
       url: 'http://localhost:5000/api/users/',
@@ -46,26 +51,24 @@ class UserSignUp extends Component {
     .then(() => {
       const { history } = this.props;
       history.push('/signin');
-      // if (res.status === 201) {
-      //   alert("Account Created!");
-      //   this.props.history.push("/signin");
-      // } else {
-      //   throw new Error();
-      // }
     })
+    /* Catch errors - Check if server error = push to /error page */
     .catch(err => {
       if (err.response.status === 500) {
         console.error('Error fetching and parsing data', err);
         this.props.history.push('/error');
+
+      /* If error message is email is already in use */
       } else if (err.response.data.message) {
         this.setState ({ emailInUseError: err.response.data.message })
+      /* If error message is about validation errors */
       } else {
         this.setState({ validationErrors: err.response.data.errors })
       }
     });
   }
 
-  // Handle changes to the form inputs
+  /* Handle changes to the form inputs */
   handleChange = (e) => {
     this.setState({
       [ e.target.name ] : e.target.value 
@@ -83,6 +86,7 @@ class UserSignUp extends Component {
           <div>
             <div className="validation-errors">
               <ul>
+                {/* Checks if there are any validation errors */}
                 { validationErrors ? (
                   validationErrors.map((err) =>
                     <li key={err.toString()}>{err}</li>

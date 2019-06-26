@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+/* Not Found / 404 error page */
 const NotFound = () => {
   return (
     <div className="bounds">
