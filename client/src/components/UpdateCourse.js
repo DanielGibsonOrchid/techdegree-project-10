@@ -95,9 +95,7 @@ class UpdateCourse extends Component {
   }
 
   render() {
-
     const { title, description, estimatedTime, materialsNeeded, user, validationErrors } = this.state;
-    
     return (
       <div className="bounds course--detail">
         <h1>Update Course</h1>

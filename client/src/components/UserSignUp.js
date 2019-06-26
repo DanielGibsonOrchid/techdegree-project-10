@@ -76,6 +76,7 @@ class UserSignUp extends Component {
   }
 
   render() {
+    console.log(this.props)
 
     const { validationErrors, emailInUseError, passwordsNotMatching } = this.state
 

@@ -11,6 +11,7 @@ class UserSignIn extends Component {
     };
     this.handleSubmit = this.handleSubmit.bind(this);
   }
+
   /* Submit button calls 'handleSignIn' function in app.js */
   handleSubmit = e => {
 
@@ -29,14 +30,21 @@ class UserSignIn extends Component {
 
   render() {
     return (
+        
         <div className="bounds">
+
+          {/* If successful login then redirect to previous page */}
+          { localStorage.getItem("IsLoggedIn") && (
+            this.props.history.goBack()
+          )}
+
           <div className="grid-33 centered signin">
             <h1>Sign In</h1>
             <div>
               {/* Check if there are any validation errors - props info comes from app.js */}
               { this.props.validationError &&  (
               <div>
-                <h2 className="validation--errors--label">Error!</h2>
+                <h2 className="validation--errors--label">Validation error</h2>
                 <br />
                 <div className="validation-errors">
                  <p>{this.props.validationError}</p>

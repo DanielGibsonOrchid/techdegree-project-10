@@ -52,31 +52,23 @@ class App extends Component {
 
       /* Clear validation errors from sign-in form */
       this.setState({ validationError: '' })
-
-      /*
-      *
-      * Error #1 - props.history is not working. Seems like there is no props being passed through - Not sure how to fix this
-      * 
-      */
-      const { history, location } = props;
-      const path = location.state ? location.prevLocation : '/';
-      history.push(path);
-
-
     })
+    
     /*
-      *
-      * Error #2 - err.response is undefined (console error) - Not sure how to fix this
-      * 
-      */
+      * Slight issue - when signing in, console gives an error:
+      * err.response is undefined
+      * Not sure why this happens but doesn't appear to effect the app
+    */
+
     /* Catch errors - Check if server error = push to /error page */
     .catch(err => {
-      if (err.response.status === 500) {
+      if (err.response.status === 401) {
+        /* Status 401 = unauthorized access - must be a validation error */
+        this.setState ({validationError: err.response.data.message })
+      } else {
+        /* If not a 401 validation error then it must be a server error */
         console.error('Error fetching and parsing data', err);
         this.props.history.push('/error');
-      } else {
-        /* If not a server error then it must be a validation error */
-        this.setState ({validationError: err.response.data.message })
       }
     });
   }
@@ -92,11 +84,12 @@ class App extends Component {
             <PrivateRoute path="/courses/:id/update" component={UpdateCourse} />
             <Route exact path="/courses/:id" component={CourseDetail} />
 
-            {/* Pass handleSignIn and validation errors through to UserSignIn component*/}
-            <Route exact path="/signin" component={() => <UserSignIn 
+            {/* Pass handleSignIn, validationErrors, and props through to UserSignIn component*/}
+            <Route path="/signin" render={ (props) => <UserSignIn
               handleSignIn={this.handleSignIn} 
               validationError={this.state.validationError}
-            /> } />
+              {...props} /> } />
+
             <Route exact path="/signup" component={UserSignUp} />
             <Route exact path="/signout" component={UserSignOut} />
 
