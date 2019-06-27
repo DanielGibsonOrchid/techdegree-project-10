@@ -49,8 +49,10 @@ class UserSignUp extends Component {
       }
     })
     .then(() => {
-      const { history } = this.props;
-      history.push('/signin');
+
+      {/* After successful sign-up then call handleSignIn function to automatically sign-in the new user */}
+      this.props.handleSignIn(emailAddress, password);
+      
     })
     /* Catch errors - Check if server error = push to /error page */
     .catch(err => {
@@ -76,12 +78,17 @@ class UserSignUp extends Component {
   }
 
   render() {
-    console.log(this.props)
 
     const { validationErrors, emailInUseError, passwordsNotMatching } = this.state
 
     return (
       <div className="bounds">
+
+        {/* If successful signup then redirect to homepage */}
+        { localStorage.getItem("IsLoggedIn") && (
+            this.props.history.push('/')
+        )}
+
         <div className="grid-33 centered signin">
           <h1>Sign Up</h1>
           <div>
@@ -158,7 +165,7 @@ class UserSignUp extends Component {
                 />
               </div>
               <div className="grid-100 pad-bottom">
-                <button className="button" type="sumbit">Sign In</button>
+                <button className="button" type="sumbit">Sign Up</button>
                 <Link className="button button-secondary" to="/">Cancel</Link>
               </div>
             </form>

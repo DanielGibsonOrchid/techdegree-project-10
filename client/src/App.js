@@ -79,12 +79,17 @@ class App extends Component {
             <Route exact path="/courses/:id" component={CourseDetail} />
 
             {/* Pass handleSignIn, validationErrors, and props through to UserSignIn component*/}
-            <Route path="/signin" component={ (props) => <UserSignIn
+            <Route exact path="/signin" component={ (props) => <UserSignIn
               handleSignIn={this.handleSignIn} 
               validationError={this.state.validationError}
-              {...props} /> } />
+              {...props} /> 
+            } />
 
-            <Route exact path="/signup" component={UserSignUp} />
+            <Route exact path="/signup" component={ (props) => <UserSignUp
+              handleSignIn={this.handleSignIn}
+              {...props} /> 
+            } />
+
             <Route exact path="/signout" component={UserSignOut} />
 
             <Route exact path="/forbidden" component={Forbidden} />

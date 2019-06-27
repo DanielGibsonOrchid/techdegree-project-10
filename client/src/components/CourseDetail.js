@@ -94,19 +94,7 @@ class CourseDetail extends Component {
                           Delete Course
                         </button>
                       </span>
-                  ) : 
-                  (isLoggedIn && user.id !== UserId) ? (
-                    ''
-                  ) : 
-                  <span>
-                    <Link className="button" to='/signin'>
-                      Sign-in to Update Course
-                    </Link>
-                    <Link className="button" to='/signin'>
-                      Sign-in to Delete Course
-                    </Link>
-                  </span>
-                  }
+                  ) :  '' }
 
                   <Link className="button button-secondary" to="/">
                     Return to List
